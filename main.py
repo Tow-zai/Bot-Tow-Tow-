@@ -84,18 +84,18 @@ async def img(ctx, img: str):
 #    if
 
 
-#@client.command(name="jokea")
-#async def ichdj(ctx):
-#	url = 'https://icanhazdadjoke.com/'
-#	response = requests.get(url, headers={"Accept": "application/json"}).json()
-#	await ctx.channel.send(response["joke"])
+@client.command(name="jokea")
+async def ichdj(ctx):
+	url = 'https://icanhazdadjoke.com/'
+	response = requests.get(url, headers={"Accept": "application/json"}).json()
+	await ctx.channel.send(response["joke"])
 
 
-#@client.command(name="jokeb")
-#async def SRF_joke(ctx):
-#	endpoint = "https://some-random-api.ml/joke"
-#	response = requests.get(endpoint).json()
-#	await ctx.channel.send(response["joke"])
+@client.command(name="jokeb")
+async def SRF_joke(ctx):
+	endpoint = "https://some-random-api.ml/joke"
+	response = requests.get(endpoint).json()
+	await ctx.channel.send(response["joke"])
 
 
 @client.command(name="pl")
