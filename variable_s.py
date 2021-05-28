@@ -13,3 +13,5 @@ hi_gif = ["https://tenor.com/view/hey-tom-hanks-forrest-gump-gif-5114770","https
 ynchoice = ["👍","👎"]
 
 greet_ings = ["morning","hello","hi","ello","whatsup","早晨","bonjour","bonsoir","ciao","buongiorno","prego","grazie","おげんき","おはよう","こんにちは"," こんばんは","Salut","wtsup","wts up","whats up","whassup","hihi","嗨嗨"]
+
+stel_la = ["熱狗", "hotdog", "hot dog", "ホットドック", "收皮", "00後"]
