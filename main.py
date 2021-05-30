@@ -1,4 +1,3 @@
-#main.py
 import discord
 import os
 import asyncio
@@ -14,17 +13,23 @@ from staying_alive import staying_alive
 from variable_s import *
 from react_commands import *
 from aiohttp import request
+from discord.utils import get
 
-intents = discord.Intents(messages=True,guilds=True,members=True,typing=False,presences=False,reactions=True)
-client = commands.Bot(command_prefix="tt", intents=intents)
 
-@client.event
+intents = discord.Intents(messages=True,guilds=True,members=True,reactions=True)
+bot = commands.Bot(command_prefix=commands.when_mentioned_or("tt"), intents=intents)
+
+@bot.event
 async def on_ready():
-	print('{0.user} is in! '.format(client))
-	await client.change_presence(activity=discord.Game('EPIC RPG'))
+	print('{0.user} is in! '.format(bot))
+	await bot.change_presence(activity=discord.Game('EPIC RPG'))
+
+@bot.command()
+async def ping(ctx):
+    await ctx.send(f'{bot.latency*1000}(毫秒)')
 
 
-@client.command(name='server')
+@bot.command(name='server')
 async def fetchServerInfo(context):
     guild = context.guild
     emb = discord.Embed(title="Server 資料",
@@ -39,47 +44,46 @@ async def fetchServerInfo(context):
     emb.set_image(url=context.guild.icon_url)
     msg = await context.channel.send(embed=emb)
 
-@client.command(name="pl")
-async def pl(ctx, url: str):
-    channel = ctx.author.voice.channel
-    voice_client = discord.utils.get(ctx.client.voice_clients, guild=ctx.guild)
-    voice = discord.utils.get(ctx.guild.voice_channels, name=channel.name)
-    if voice and not voice.is_connected():
-        await voice.move_to(channel)
+@bot.command()
+async def nick(ctx, *, user: discord.Member):
+    if user.nick == None:
+        await ctx.send(f"個傻仔無d創意,個個ser既名都係: {user.display_name}")
     else:
-        voice = await channel.connect(timeout=120) 
-    voice.play(discord.FFmpegPCMAudio(f'./MP3/{url}.mp3'))
-    while voice.is_playing():
-        await asyncio.sleep(1)
-    else:
-        while voice.is_playing():
-            break
-        else:
-            await voice.disconnect()
+        await ctx.send(f"尼個ser既名係: {user.nick}")
 
 
-@client.command(name="leave")
-async def leave(ctx):
-    voice = discord.utils.get(client.voice_clients, guild=ctx.guild)
-    if voice.is_connected():
-        await voice.disconnect()
-    else:
-        await ctx.send("not connected")
+# @bot.command(pass_context = True)
+# async def pl(ctx, *, url: str):
+#     channel = ctx.message.author.voice.channel
+#     voice = discord.utils.get(ctx.guild.voice_channels, name=channel.name)
+#     source = discord.FFmpegPCMAudio((f'./MP3/{url}.mp3') , after=lambda e: print(f"Finished playing: {e}"))
+#     voice_client = discord.utils.get(bot.voice_clients, guild=ctx.guild)
+#     if voice_client == None:
+#         await voice.connect()
+#     else:
+#         await voice_client.move_to(channel)
+#         voice = await ctx.author.voice.channel.connect()
+#         await voice.voice_client.play(source)
+#         while voice.is_playing():
+#             await asyncio.sleep(1)
+#             break
+#         else:
+#             await voice.disconnect()
 
 
-@client.event
+@bot.event
 async def on_voice_state_update(member, before, after):
-    if member.id == 588863635154141272 and after.voice.channel.id == 827272740817076235:
-        channel = client.get_channel(827278669494878278)
-        await client.channel.send(f'{member}點啊?')
-        #voice = await member.voice.channel.connect()
-        #await voice.play(discord.FFmpegPCMAudio(f"~/MP3/cool.mp3"))
-        #await asyncio.sleep(3)
-        #await voice.disconnect()
+    member = (588863635154141272)
+    if not after == afk and before == afk:
+        print ("ok")
+        channel = bot.get_channel(827278669494878278)
+        await bot.channel.send(f'{member.nick}點啊?')
+    else:
+        print ("not working")
 
 
-@client.command(name="fact")
-async def animal_fact(ctx, animal: str):
+@bot.command(name="fact")
+async def animal_fact(ctx, *, animal: str):
     if animal.lower() in ("dog", "cat", "panda", "fox", "bird", "koala"):
         endpoint = f"https://some-random-api.ml/facts/{animal.lower()}"
         response = requests.get(endpoint).json()
@@ -88,8 +92,8 @@ async def animal_fact(ctx, animal: str):
         await ctx.channel.send("自己Google啦!")
 
 
-@client.command(name="do")
-async def ichdj(ctx, action: str):
+@bot.command(name="do")
+async def ichdj(ctx, *, action: str):
     if action.lower() in ("wink", "pat", "hug", "face-palm"):
         url = f'https://some-random-api.ml/animu/{action.lower()}'
         response = requests.get(url, headers={"Accept": "application/json"}).json()
@@ -98,8 +102,8 @@ async def ichdj(ctx, action: str):
         await ctx.channel.send("https://tenor.com/view/what-do-you-wanna-do-edward-asner-abe-rifkin-dead-to-me-what-should-we-do-gif-17803589")
 
 
-@client.command(name="img")
-async def img(ctx, img: str):
+@bot.command(name="img")
+async def img(ctx, *, img: str):
     if img.lower() in ("dog", "cat", "panda", "fox", "red_panda", "koala", "birb", "racoon", "kangaroo", "whale", "pikachu"):
         url = f'https://some-random-api.ml/img/{img.lower()}'
         response = requests.get(url, headers={"Accept": "application/json"}).json()
@@ -108,21 +112,21 @@ async def img(ctx, img: str):
         await ctx.channel.send("Google Image幫到你!")
 
 
-@client.command(name="jokea")
+@bot.command(name="jokea")
 async def ichdj(ctx):
     url = 'https://icanhazdadjoke.com/'
     response = requests.get(url, headers={"Accept": "application/json"}).json()
     await ctx.channel.send(response["joke"])
 
 
-@client.command(name="jokeb")
+@bot.command(name="jokeb")
 async def SRF_joke(ctx):
     endpoint = "https://some-random-api.ml/joke"
     response = requests.get(endpoint).json()
     await ctx.channel.send(response["joke"])
 
 
-@client.command()
+@bot.command()
 async def yn(ctx, *, message):
     emb = discord.Embed(title=f'投票:{message}',description=f'我覺得係{random.choice(ynchoice)}')
     msg = await ctx.channel.send(embed=emb)
@@ -130,7 +134,7 @@ async def yn(ctx, *, message):
     await msg.add_reaction('👎')
 
 
-@client.command()
+@bot.command()
 async def rate(ctx):
     emb = discord.Embed(title="你會俾幾分?",description=f'我唔知你,但係我會比{random.randrange(10)}分!')
     msg = await ctx.channel.send(embed=emb)
@@ -140,7 +144,7 @@ async def rate(ctx):
         await msg.add_reaction(emoji_numbers[i])
 
 
-@client.command()
+@bot.command()
 async def hel_lo(message):
     await message.add_reaction('<:LOVEU2:831585270398189600>')
     await message.channel.send(random.choice(hi_gif))
@@ -157,31 +161,31 @@ async def pman(message):
     await message.channel.send(" <:Support:833905650140053544><:3Dpigman:831527282816188456> ")
 
 
-@client.command(name='CAtime')
+@bot.command(name='CAtime')
 async def CA_T(context):
     tz_CA = pytz.timezone('America/Toronto')
     CA_T = datetime.now(tz_CA)
     await context.channel.send(CA_T.strftime("%a %d %b,%y %I:%M:%S %p"))
 
 
-@client.command(name='UKtime')
+@bot.command(name='UKtime')
 async def UK_T(message):
     tz_UK = pytz.timezone('Europe/London')
     UK_T = datetime.now(tz_UK)
     await message.channel.send(UK_T.strftime("%a %d %b,%y %I:%M:%S %p"))
 
 
-@client.command(name='HKtime')
+@bot.command(name='HKtime')
 async def HK_T(message):
     tz_HK = pytz.timezone('Asia/Hong_Kong')
     HK_T = datetime.now(tz_HK)
     await message.channel.send(HK_T.strftime("%a %d %b,%y %I:%M:%S %p"))
 
 
-@client.event
+@bot.event
 async def on_message(message):
-    await client.process_commands(message)
-    if message.author == client.user:
+    await bot.process_commands(message)
+    if message.author == bot.user:
         return
 
     username = str(message.author).split('#')[0]
@@ -226,7 +230,14 @@ async def on_message(message):
     if ('joker' in msg):
         await message.channel.send('https://tenor.com/view/batman-joker-heath-ledger-clap-clapping-gif-11060757')
 
-
+@commands.Cog.listener()
+async def on_command_error(self, ctx, error):
+    if isinstance(error, commands.errors.MissingRequiredArgument):
+        await ctx.channel.send("遺失參數")
+    elif isinstance(error, commands.errors.CommandNotFound):
+        await ctx.channel.send("無尼個cmd啊!")
+    else:
+        await ctx.channel.send(error)
 
 staying_alive()
-client.run(os.getenv('TOKEN'))
+bot.run(os.getenv('TOKEN'))
