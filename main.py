@@ -16,8 +16,8 @@ from aiohttp import request
 from discord.utils import get
 
 
-intents = discord.Intents(messages=True,guilds=True,members=True,reactions=True)
-bot = commands.Bot(command_prefix=commands.when_mentioned_or("tt"), intents=intents)
+#intents = discord.Intents(messages=True,guilds=True,members=True,reactions=True)
+bot = commands.Bot(command_prefix=commands.when_mentioned_or("tt"))#, intents=intents)
 
 @bot.event
 async def on_ready():
@@ -25,11 +25,12 @@ async def on_ready():
 	await bot.change_presence(activity=discord.Game('EPIC RPG'))
 
 @bot.command()
-async def ping(ctx):
+async def ching(ctx):
+    await ctx.send('chong')
     await ctx.send(f'{bot.latency*1000}(毫秒)')
 
 
-@bot.command(name='server')
+@bot.command(name='ser')
 async def fetchServerInfo(context):
     guild = context.guild
     emb = discord.Embed(title="Server 資料",
@@ -47,9 +48,9 @@ async def fetchServerInfo(context):
 @bot.command()
 async def nick(ctx, *, user: discord.Member):
     if user.nick == None:
-        await ctx.send(f"個傻仔無d創意,個個ser既名都係: {user.display_name}")
+        await ctx.send(f"條友仔無d創意,個個ser既名都係: {user.display_name}")
     else:
-        await ctx.send(f"尼個ser既名係: {user.nick}")
+        await ctx.send(f"佢係尼個ser既名係: {user.nick}")
 
 
 # @bot.command(pass_context = True)
@@ -147,7 +148,7 @@ async def rate(ctx):
 @bot.command()
 async def hel_lo(message):
     await message.add_reaction('<:LOVEU2:831585270398189600>')
-    await message.channel.send(random.choice(hi_gif))
+    # await message.channel.send(random.choice(hi_gif))
 
 
 async def react(message):
@@ -162,10 +163,25 @@ async def pman(message):
 
 
 @bot.command(name='CAtime')
-async def CA_T(context):
+async def CAtime(context):
     tz_CA = pytz.timezone('America/Toronto')
     CA_T = datetime.now(tz_CA)
     await context.channel.send(CA_T.strftime("%a %d %b,%y %I:%M:%S %p"))
+
+
+@bot.event
+async def on_voice_state_update(member, before, after):
+    if after.channel.id == 837057086339809360:  #VC
+        channel = bot.get_channel(837057315365715969)   #文字chan
+        await channel.send(f'{member.nick}來啦!想杯佢既人自動退避!')
+
+
+# @bot.event
+# async def on_voice_state_update(member, before, after):
+#     if member.id == 588863635154141272:   #人
+#         if after.channel.id == 837057086339809360:  #VC
+#             channel = bot.get_channel(837057315365715969)   #文字chan
+#             await channel.send('Admin嫁到!咸人退鼻!')
 
 
 @bot.command(name='UKtime')
@@ -230,12 +246,12 @@ async def on_message(message):
     if ('joker' in msg):
         await message.channel.send('https://tenor.com/view/batman-joker-heath-ledger-clap-clapping-gif-11060757')
 
-@commands.Cog.listener()
-async def on_command_error(self, ctx, error):
+@bot.event
+async def on_command_error(ctx, error):
     if isinstance(error, commands.errors.MissingRequiredArgument):
         await ctx.channel.send("遺失參數")
     elif isinstance(error, commands.errors.CommandNotFound):
-        await ctx.channel.send("無尼個cmd啊!")
+        await ctx.channel.send("無尼個cmd啊!係咪打錯字啊?")
     else:
         await ctx.channel.send(error)
 
